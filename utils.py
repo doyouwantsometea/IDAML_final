@@ -39,7 +39,7 @@ def cat_to_num(df):
 def preprocess(path: str):
     df = pd.read_csv(path)
     df = cat_to_num(df)
-
+    print(df.columns)
     X = df.drop(['area'], axis=1)
     y = df['area']
     y = y.apply(transform)
