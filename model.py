@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression, SGDRegressor
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
@@ -59,6 +60,7 @@ def tune_model(X_train, X_test, y_train, y_test):
                   }
 
     # regressor = SGDRegressor(max_iter=1000, tol=1e-3, penalty=None, eta0=0.1, random_state=42)
+    # regressor = DecisionTreeRegressor(min_samples_leaf=10)
     regressor = KernelRidge(kernel="linear")
     regressor.fit(X_train, y_train)
 

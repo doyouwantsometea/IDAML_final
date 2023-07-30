@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+# from sklearn.preprocessing import normalize
 
 
 month_to_idx = {
@@ -38,9 +39,21 @@ def cat_to_num(df):
 
 def preprocess(path: str):
     df = pd.read_csv(path)
+
+    # df = df[df['area'] > 0]
+    # normalize(df['FFMC'])
+    df.loc[df['FFMC'] < 60, 'FFMC'] = 60
+    df.loc[df['ISI'] > 25, 'ISI'] = 25
+    df.loc[df['rain'] > 1.8, 'rain'] = 1.8
+
+    # df['FFMC_std'] = (df['FFMC'] - df['FFMC'].mean()) / df['FFMC'].std()
+    # df['ISI_std'] = (df['ISI'] - df['ISI'].mean()) / df['ISI'].std()
+    df['rain_std'] = (df['rain'] - df['rain'].mean()) / df['rain'].std()
+    # df = df[df['ISI'].apply(normalize)]
+
     df = cat_to_num(df)
     print(df.columns)
-    X = df.drop(['area'], axis=1)
+    X = df.drop(['area', 'FFMC', 'ISI', 'rain'], axis=1)
     y = df['area']
     y = y.apply(transform)
     return X, y
