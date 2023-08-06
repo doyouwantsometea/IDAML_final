@@ -1,6 +1,6 @@
 import argparse
 from sklearn.model_selection import train_test_split
-from model import baseline_model, single_model, classification
+from model import baseline_model, single_model, classification, evaluate
 from utils import preprocess
 
 
@@ -54,7 +54,8 @@ def main():
         X, y = preprocess('data/fires.csv', add_class=True)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         X_train, X_test, y_train, y_test = classification(X_train, X_test, y_train, y_test)
-        single_model(X_train, X_test, y_train, y_test, add_layer=True)
+        pred = single_model(X_train, X_test, y_train, y_test, add_layer=True)
+        evaluate(pred, y_test)
         
 
 

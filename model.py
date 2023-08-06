@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LinearRegression, SGDRegressor, LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeRegressor
@@ -89,6 +90,7 @@ def single_model(X_train, X_test, y_train, y_test, add_layer=False):
     # regressor = GDLinearRegression()
     
     if add_layer:
+        pred = X_test['pred_label']
         X_test = X_test.where(X_test['pred_label'] > 0).dropna().drop(['pred_label'], axis=1)
         y_test = y_test.loc[X_test.index]
 
@@ -107,14 +109,24 @@ def single_model(X_train, X_test, y_train, y_test, add_layer=False):
     # search.fit(X_train, y_train)
     # best_regressor = search.best_estimator_
 
-
     y_pred = regressor.predict(X_test)
     # print(y_test[:10])
     # print(y_pred[:10])
     print(f"KernelRidge Score: {regressor.score(X_test, y_test)}")
-
+    # print(y_pred)
     # y_pred = best_regressor.predict(X_test)
     # print(f"Score:{best_regressor.score(X_test, y_test)}")
 
     print(explained_variance_score(y_test, y_pred))
     print(mean_squared_error(y_test, y_pred))
+
+    pred.loc[pred.values > 0] += (y_pred - 1)
+    return pred
+
+
+def evaluate(pred, true):
+    # u = ((true - pred) ** 2).sum()
+    # v = ((true - true.mean()) ** 2).sum()
+    # print(1 - u/v)
+    print(f'Variance: {explained_variance_score(true, pred)}')
+    print(f'Mean Squared Error: {mean_squared_error(true, pred)}')
