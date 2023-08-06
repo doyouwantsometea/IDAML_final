@@ -1,12 +1,12 @@
 import numpy as np
-from sklearn.linear_model import LinearRegression, SGDRegressor
+from sklearn.linear_model import LinearRegression, SGDRegressor, LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import explained_variance_score, mean_squared_error
+from sklearn.metrics import explained_variance_score, mean_squared_error, accuracy_score
 
 
 
@@ -46,13 +46,52 @@ def baseline_model(X_train, X_test, y_train, y_test):
     print(f"Score:{reg.score(X_test, y_test)}")
 
 
-def tune_model(X_train, X_test, y_train, y_test):
+def classification(X_train, X_test, y_train, y_test):
+
+    next_X_train = X_train.where(X_train['label'] > 0).dropna()    
+    # print(next_X_train)
+    next_y_train = y_train.loc[next_X_train.index]
+    # print(next_y_train)
+
+
+    y_train = X_train['label']
+    X_train = X_train.drop('label', axis=1)
+    # print(y_train)
+    # print(X_train)
+
+    clf = LogisticRegression(max_iter=1000)
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict(X_test.drop('label', axis=1))
+    X_test['pred_label'] = y_pred
+    # print(X_test.head(10))
+    # print(X_test.where(y_pred == 1))
+    # print(y_pred.tolist())
+    # print(X_test['label'].tolist())
+    print(f'LogReg Accuracy: {accuracy_score(y_pred.tolist(), X_test.label.tolist())}')
+
+    # next_X = X_train.where(X_train['label'] > 0)
+    # print(next_X)
+    # next_X_test = X_test.where(X_test['pred_label'] > 0).dropna().drop(['pred_label'], axis=1)
+    next_X_test = X_test
+    # print(next_X_test)
+    # next_y_test = y_test.loc[next_X_test.index]
+    next_y_test = y_test
+    # print(next_y_test)
+    return next_X_train, next_X_test, next_y_train, next_y_test
+
+
+def single_model(X_train, X_test, y_train, y_test, add_layer=False):
     # regressor = make_pipeline(LinearRegression())
     # regressor = KernelRidge(degree=4)
     # regressor = Ridge()
     # regressor = ElasticNet(alpha=0.1)
     # regressor = GDLinearRegression()
     
+    if add_layer:
+        X_test = X_test.where(X_test['pred_label'] > 0).dropna().drop(['pred_label'], axis=1)
+        y_test = y_test.loc[X_test.index]
+
     param_grid = {
         "kernel": ["linear", "poly", "rbf", "sigmoid"]
         # "loss": ["squared_error", "huber", "epsilon_insensitive", "squared_epsilon_insensitive"],
@@ -70,9 +109,9 @@ def tune_model(X_train, X_test, y_train, y_test):
 
 
     y_pred = regressor.predict(X_test)
-    print(y_test[:10])
-    print(y_pred[:10])
-    print(f"Score:{regressor.score(X_test, y_test)}")
+    # print(y_test[:10])
+    # print(y_pred[:10])
+    print(f"KernelRidge Score: {regressor.score(X_test, y_test)}")
 
     # y_pred = best_regressor.predict(X_test)
     # print(f"Score:{best_regressor.score(X_test, y_test)}")
