@@ -1,6 +1,6 @@
 import argparse
 from sklearn.model_selection import train_test_split
-from model import baseline_model, single_model, classification, evaluate
+from model import baseline_model, kernel_ridge, classification, evaluate
 from utils import preprocess
 
 
@@ -11,19 +11,19 @@ def params():
 
     parser.add_argument(
         '--baseline', dest='baseline',
-        help='Train and evaluate baseline model.',
+        help='Train and evaluate baseline ridge regression model.',
         action='store_true'
     )
 
     parser.add_argument(
-        '--single_model', dest='single_model',
-        help='Train and evaluate the simple model.',
+        '--kernel_ridge', dest='kernel_ridge',
+        help='Train and evaluate the ridge regression model with kernel trick.',
         action='store_true'
     )
 
     parser.add_argument(
-        '--multi_layer', dest='multi_layer',
-        help='Train and evaluate the model with multi-layer architecture.',
+        '--multi_steps', dest='multi_steps',
+        help='Train and evaluate the kernel ridge model with an additional logistic regression step.',
         action='store_true'
     )
 
@@ -35,29 +35,21 @@ def main():
     if args.baseline:
         X, y = preprocess('data/fires.csv')
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        # print(X_train.head())
-        # print(X_test.head())
-        # print(y_train.head())
-        # print(y_test.head())
-        baseline_model(X_train, X_test, y_train, y_test)
+        pred = baseline_model(X_train, X_test, y_train, y_test)
+        evaluate(pred, y_test)
 
-    if args.single_model:
+    if args.kernel_ridge:
         X, y = preprocess('data/fires.csv')
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        # print(X_train.head())
-        # print(X_test.head())
-        # print(y_train.head())
-        # print(y_test.head())
-        single_model(X_train, X_test, y_train, y_test)
+        pred = kernel_ridge(X_train, X_test, y_train, y_test)
+        evaluate(pred, y_test)
 
-    if args.multi_layer:
+    if args.multi_steps:
         X, y = preprocess('data/fires.csv', add_class=True)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        X_train, X_test, y_train, y_test = classification(X_train, X_test, y_train, y_test)
-        pred = single_model(X_train, X_test, y_train, y_test, add_layer=True)
+        X_train, y_train = classification(X_train, X_test, y_train, y_test)
+        pred = kernel_ridge(X_train, X_test, y_train, y_test, add_layer=True)
         evaluate(pred, y_test)
-        
-
 
 
 if __name__ == '__main__':
