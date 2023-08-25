@@ -23,7 +23,7 @@ def classification(X_train, X_test, y_train, y_test):
     X_train = X_train.drop('label', axis=1)
 
     # logistic regression classification
-    clf = LogisticRegression(max_iter=1000)
+    clf = LogisticRegression(max_iter=1000, C=0.001)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test.drop('label', axis=1))
     X_test['pred_label'] = y_pred
@@ -40,7 +40,7 @@ def kernel_ridge(X_train, X_test, y_train, y_test, add_layer=False):
         X_test = X_test.where(X_test['pred_label'] > 0).dropna().drop(['pred_label'], axis=1)
         y_test = y_test.loc[X_test.index]
 
-    regressor = KernelRidge(kernel="linear")
+    regressor = KernelRidge(kernel='linear')
     regressor.fit(X_train, y_train)
     y_pred = regressor.predict(X_test)
 
