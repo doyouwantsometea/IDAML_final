@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.kernel_ridge import KernelRidge
-from sklearn.metrics import explained_variance_score, mean_squared_error, accuracy_score
+from sklearn.metrics import explained_variance_score, mean_squared_error, accuracy_score, recall_score
 
 
 def baseline_model(X_train, X_test, y_train, y_test):
@@ -29,6 +29,7 @@ def classification(X_train, X_test, y_train, y_test):
     X_test['pred_label'] = y_pred
 
     print(f'LogReg Accuracy: {accuracy_score(y_pred.tolist(), X_test.label.tolist())}')
+    print(f'LogReg Recall: {recall_score(y_pred.tolist(), X_test.label.tolist())}')
     return next_X_train, next_y_train
 
 
@@ -46,6 +47,7 @@ def kernel_ridge(X_train, X_test, y_train, y_test, add_layer=False):
 
     if add_layer:
         print(f'Kernel Ridge R2: {explained_variance_score(y_test, y_pred, force_finite=False)}')
+        print(f'Kernel Ridge MSE: {mean_squared_error(y_test, y_pred)}')
         pred.loc[pred.values > 0] += (y_pred - 1)
         return pred
     
